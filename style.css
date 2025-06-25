@@ -1,0 +1,37 @@
+body {
+  background-color: #f2f2f2;
+  font-family: Arial, sans-serif;
+  padding: 30px;
+}
+
+h1 {
+  color: #0077cc;
+  font-size: 36px;
+}
+
+p {
+  font-size: 18px;
+}
+.product {
+  display: flex; /* this puts image and text side by side */
+  align-items: flex-start; /* aligns top of image and text */
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.product-img {
+  width: 100px;
+  height: auto;
+  border-radius: 5px;
+  margin-right: 20px;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column; /* keeps name, price, stock stacked vertically */
+}
+
+

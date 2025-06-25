@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rainbow's Inventory</title>
+<style>
+    :root {
+      --bg-light: #fff;
+      --bg-dark: #121212;
+      --text-light: #333;
+      --text-dark: #eee;
+      --box-light: #eee;
+      --box-dark: #1f1f1f;
+      --hover-light: #e0e0e0;
+      --hover-dark: #333;
+      --accent: #7591BE;
+      --accent-dark: #7591BE;
+      --input-bg-dark: #222;
+      --input-border-dark: #555;
+      --tran: transparent;
+      @media (max-width: 600px) {
+        #editProductForm {
+          max-height: 80vh;
+          padding: 10px 3vw;
+        }
+      }
+    }
+    html, body {
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    @media (max-width: 600px) {
+      body {
+        background: url('https://i.imgur.com/kLK2tBU.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+        background-attachment: scroll !important;
+      }
+      :root {
+  --bg-light: #fff;
+  --bg-dark: #121212;
+  --text-light: #333;
+  --text-dark: #eee;
+  --box-light: #eee;
+  --box-dark: #1f1f1f;
+  --hover-light: #e0e0e0;
+  --hover-dark: #333;
+  --accent: #7591BE;
+  --accent-dark: #7591BE;
+  --input-bg-dark: #222;
+  --input-border-dark: #555;
+  --tran: transparent;
+  @media (max-width: 600px) {
+    #editProductForm {
+      max-height: 80vh;
+      padding: 10px 3vw;
+    }
+  }
+}
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+/* ... all your previous styles ... */
+
+/* -------- Sexy Barcode Scanner Modal -------- */
+#barcodeScannerModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.35);
+  z-index: 3000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3.5px);
+  transition: background 0.3s;
+}
+#barcodeScannerModal.active { display: flex; }
+
+.barcode-modal-content {
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.19);
+  padding: 38px 32px 28px;
+  min-width: 320px;
+  max-width: 97vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: box-shadow 0.35s, background 0.35s;
+}
+
+body.dark-mode .barcode-modal-content {
+  background: rgba(28,32,46,0.98);
+  color: #eee;
+  box-shadow: 0 8px 32px 0 rgba(25, 32, 60, 0.32);
+}
+
+#barcodeScannerModal .close-barcode-modal {
+  position: absolute;
+  top: 13px; right: 18px;
+  font-size: 2em;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: color 0.2s, opacity 0.2s;
+  z-index: 10;
+}
+#barcodeScannerModal .close-barcode-modal:hover {
+  color: #e74c3c;
+  opacity: 1;
+  transform: scale(1.18) rotate(12deg);
+}
+
+#barcodeScanner {
+  width: 260px;
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 14px #3399ff30;
+  background: #f7fafd;
+  margin-bottom: 22px;
+  transition: box-shadow 0.3s;
+}
+body.dark-mode #barcodeScanner {
+  background: #232b38;
+  box-shadow: 0 2px 14px #0078d733;
+}
+
+.barcode-manual-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 0 0;
+  width: 100%;
+}
+#manualBarcodeInput {
+  flex: 1;
+  padding: 10px 15px;
+  font-size: 1.08em;
+  border-radius: 8px;
+  border: 1.4px solid #bde1fd;
+  background: #fafdff;
+  outline: none;
+  margin-right: 0;
+  transition: border 0.19s;
+}
+#manualBarcodeInput:focus {
+  border-color: #21b4ff;
+  background: #f4fcff;
+}
+body.dark-mode #manualBarcodeInput {
+  background: #222;
+  border-color: #555;
+  color: #fff;
+}
+#manualBarcodeBtn {
+  padding: 10px 26px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-weight: bold;
+  font-size: 1.05em;
+  cursor: pointer;
+  box-shadow: 0 2px 10px #0078d70d;
+  transition: background 0.19s, color 0.19s;
+}
+#manualBarcodeBtn:hover {
+  background: var(--accent-dark);
+  color: #fff;
+}
+
+#barcodeModalOr {
+  margin: 14px 0 10px 0;
+  font-size: 1.02em;
+  color: #888;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+body.dark-mode #barcodeModalOr {
+  color: #bbb;
+}
+
+#closeScannerBtn {
+  margin-top: 23px;
+  width: 100%;
+  padding: 9px 0;
+  border-radius: 8px;
+  border: 1.2px solid #ccc;
+  background: #fff;
+  color: #333;
+  font-size: 1.05em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  box-shadow: 0 1px 7px #8881;
+}
+#closeScannerBtn:hover {
+  background: #eee;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+body.dark-mode #closeScannerBtn {
+  background: #232a35;
+  color: #eee;
+  border-color: #444;
+}
+body.dark-mode #closeScannerBtn:hover {
+  background: #333;
+  color: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+/* Responsive */
+@media (max-width: 500px) {
+  .barcode-modal-content {
+    padding: 17px 6vw 16px;
+    min-width: 0;
+  }
+  #barcodeScanner {
+    width: 90vw;
+    height: 90vw;
+    max-width: 330px;
+    max-height: 330px;
+  }
+}
+
+/* ...rest of your previous styles... */
+      body.dark-mode {
+        background: url('https://i.imgur.com/sm3eXh7.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+        background-attachment: scroll !important;
+      }
+    }
+    .category-box {
+      padding: 30px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.22);
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition:
+        background 0.7s cubic-bezier(.25,.8,.25,1),
+        box-shadow 0.45s cubic-bezier(.23,1.1,.32,1),
+        transform 0.35s cubic-bezier(.4,2,.6,1),
+        border-color 0.36s cubic-bezier(.45,1.4,.37,1),
+        filter 0.39s cubic-bezier(.4,2,.6,1),
+        backdrop-filter 0.65s cubic-bezier(.4,2,.6,1);
+      position: relative;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1.5px solid rgba(0,0,0,0.08);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+      backdrop-filter: blur(5px);
+    }
+    body.dark-mode .category-box {
+      background: rgba(32, 32, 32, 0.24);
+      border: 1.5px solid #ffffff1f;
+      box-shadow: 0 8px 32px 0 rgba(24, 24, 36, 0.18);
+      backdrop-filter: blur(5px);
+    }
+    .category-box:hover,
+    .category-box:focus {
+      background: rgba(0, 120, 215, 0.11);
+      box-shadow: 0 6px 28px 0 rgba(0,120,215,0.20), 0 1.7px 3.2px rgba(0,0,0,0.07);
+      /* transform: translateY(-2px) scale(1.045) rotate(-0.5deg);  <-- removed rotate for no tilt */
+      transform: translateY(-2px) scale(1.045);
+      border-color: var(--accent);
+      filter: brightness(1.10);
+    }
+    body.dark-mode .category-box:hover,
+    body.dark-mode .category-box:focus {
+      background: rgba(51, 153, 255, 0.13);
+      border-color: var(--accent-dark);
+      box-shadow: 0 6px 28px 0 rgba(51,153,255,0.17), 0 1.7px 3.2px rgba(0,0,0,0.13);
+      filter: brightness(1.16);
+      /* transform: translateY(-2px) scale(1.045) rotate(-0.5deg);  <-- removed rotate for no tilt */
+      transform: translateY(-2px) scale(1.045);
+    }
+    .category-box .add-product-plus {
+      display: none;
+      font-size: 24px;
+      color: var(--accent);
+      cursor: pointer;
+      margin-left: 10px;
+      user-select: none;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .category-box .add-product-plus:hover {
+      color: var(--accent-dark);
+    }
+    .category-box.staff-logged-in .add-product-plus {
+      display: inline-block;
+    }
+    .theme-ripple {
+      position: fixed;
+      pointer-events: none;
+      border-radius: 50%;
+      background: radial-gradient(circle, #0078d754 0%, rgba(0,120,215,0.11) 65%, transparent 100%);
+      z-index: 999999;
+      transform: scale(0);
+      opacity: 0.85;
+      transition:
+        transform 1.6s cubic-bezier(.35,1.7,.23,1),
+        opacity 1.2s cubic-bezier(.23,1.1,.32,1);
+      will-change: transform, opacity;
+    }
+    .theme-ripple.theme-ripple-animate {
+      transform: scale(2);
+      opacity: 0;
+      transition:
+        transform 1.6s cubic-bezier(.35,1.7,.23,1),
+        opacity 1.2s cubic-bezier(.31,1.2,.44,1);
+    }
+    body.theme-morph,
+    body.theme-morph * {
+      transition:
+        background-color 1.2s cubic-bezier(.5,2,.35,1),
+        color 1.2s cubic-bezier(.5,2,.35,1),
+        box-shadow 1.1s cubic-bezier(.5,2,.35,1),
+        border-color 1.1s cubic-bezier(.5,2,.35,1),
+        filter 1s cubic-bezier(.4,2,.6,1),
+        backdrop-filter 1s cubic-bezier(.4,2,.6,1)!important;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: var(--text-light);
+      background: var(--bg-light);
+      transition:
+        background-color 0.7s cubic-bezier(.25,.8,.25,1),
+        color 0.7s cubic-bezier(.25,.8,.25,1),
+        background-image 0.8s cubic-bezier(.4,2,.6,1);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    body.dark-mode {
+      color: var(--text-dark);
+      background: var(--bg-dark);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 0;
+    }
+    .header-left h1 {
+      font-size: 22px;
+      margin: 0;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .top-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .icon-button {
+      cursor: pointer;
+      border-radius: 50%;
+      padding: 16px;
+      background-color: transparent;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      user-select: none;
+    }
+    .icon-button:hover {
+      background-color: var(--hover-light);
+    }
+    body.dark-mode .icon-button:hover {
+      background-color: var(--hover-dark);
+    }
+    .icon-button img {
+      width: 28px;
+      height: 28px;
+      pointer-events: none;
+      transition: filter 0.3s;
+    }
+    body.dark-mode #searchIcon,
+    body.dark-mode #loginIcon {
+      filter: invert(1);
+    }
+    /* Barcode scanner icons: show/hide by theme */
+    .barcode-scanner-icon-light {
+      display: inline-block;
+    }
+    .barcode-scanner-icon-dark {
+      display: none;
+    }
+    body.dark-mode .barcode-scanner-icon-light {
+      display: none !important;
+    }
+    body.dark-mode .barcode-scanner-icon-dark {
+      display: inline-block !important;
+    }
+    /* ---- end barcode scanner icon theme switch ---- */
+    .icon-button .tooltip {
+      position: absolute;
+      top: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--box-light);
+      color: var(--text-light);
+      padding: 6px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      user-select: none;
+    }
+    body.dark-mode .icon-button .tooltip {
+      background-color: var(--box-dark);
+      color: var(--text-dark);
+    }
+    .icon-button:hover .tooltip {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .icon-button.staff-only { display: none; }
+    body.staff-logged-in .icon-button.staff-only { display: flex !important; }
+    .search-container {
+      display: none;
+      justify-content: center;
+      padding: 10px 20px;
+    }
+    .search-container.active {
+      display: flex;
+    }
+    .search-box {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      outline: none;
+      background-color: white;
+      transition: background-color 0.2s;
+    }
+    .search-box:hover,
+    .search-box:focus {
+      background-color: #eee;
+    }
+    body.dark-mode .search-box {
+      background-color: #2a2a2a;
+      border-color: #555;
+      color: #eee;
+    }
+    body.dark-mode .search-box:hover,
+    body-dark-mode .search-box:focus {
+      background-color: #444;
+    }
+
+    /* SCROLLABLE CATEGORIES WRAPPER */
+    .categories {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 600px;
+      width: 90vw;
+      margin: 0 auto 2rem;
+      max-height: 60vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent !important;
+    }
+    /* Custom Scrollbar for Webkit Browsers */
+    .categories::-webkit-scrollbar,
+    .product-list::-webkit-scrollbar {
+      width: 10px;
+      background: transparent !important;
+    }
+    .categories::-webkit-scrollbar-track,
+    .product-list::-webkit-scrollbar-track {
+      background: transparent !important;
+    }
+    .categories::-webkit-scrollbar-thumb,
+    .product-list::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 8px;
+    }
+    body.dark-mode .categories::-webkit-scrollbar-thumb,
+    body-dark-mode .product-list::-webkit-scrollbar-thumb {
+      background: var(--accent);
+    }
+    /* For Firefox */
+    .categories,
+    .product-list {
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent !important;
+    }
+    body.dark-mode .categories,
+    body-dark-mode .product-list {
+      scrollbar-color: var(--accent) transparent !important;
+    }
+    /* End scrollable categories styling */
+
+    .product-list {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 600px;
+      width: 90vw;
+      margin: 0 auto 2rem;
+    }
+    .product {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      background: var(--box-light);
+      position: relative;
+    }
+    body.dark-mode .product {
+      background: var(--box-dark);
+    }
+    .product-details {
+      flex: 1;
+      text-align: left;
+    }
+    .product-details h3 {
+      margin: 0 0 6px 0;
+      font-size: 1.2rem;
+    }
+    .product img {
+      width: 150px;
+      height: auto;
+      object-fit: contain;
+      order: 2;
+      max-width: 100%;
+      display: block;
+    }
+    .edit-product-btn {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      border-radius: 50%;
+      padding: 4px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      z-index: 10;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .edit-product-btn:hover {
+      background: var(--hover-light);
+    }
+    body.dark-mode .edit-product-btn:hover {
+      background: var(--hover-dark);
+    }
+    .edit-product-btn svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+      stroke: var(--accent);
+      stroke-width: 1.8;
+      fill: none;
+    }
+    body.dark-mode .edit-product-btn svg {
+      stroke: var(--accent-dark);
+    }
+    .product.staff-logged-in .edit-product-btn {
+      display: flex;
+    }
+    #themeIcon {
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .fade-out {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    .fade-in {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .hidden {
+      display: none !important;
+    }
+    #backBtn {
+      max-width: 600px;
+      width: 90vw;
+      margin: 0 auto 1rem;
+      padding: 8px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      background-color: var(--box-light);
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      user-select: none;
+    }
+    #backBtn:hover {
+      background-color: var(--hover-light);
+    }
+    body.dark-mode #backBtn {
+      background-color: var(--box-dark);
+      color: var(--text-dark);
+    }
+    body.dark-mode #backBtn:hover {
+      background-color: var(--hover-dark);
+    }
+    #loginModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    #loginModal.active {
+      display: flex;
+    }
+    #loginForm {
+      background: #fff !important;
+      color: #333 !important;
+      padding: 24px 30px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      user-select: none;
+    }
+    #loginForm h2, #loginForm label {
+      color: #333 !important;
+    }
+    #loginForm input[type="password"] {
+      background: #fff !important;
+      color: #333 !important;
+      border: 1px solid #ccc;
+    }
+    body.dark-mode #loginForm {
+      background: var(--box-dark);
+      color: var(--text-dark);
+    }
+    #loginForm h2 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    #loginForm label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    #loginForm input[type="password"] {
+      width: 100%;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    #loginForm input[type="password"]:focus {
+      border-color: #666;
+    }
+    body.dark-mode #loginForm input[type="password"] {
+      background-color: #222;
+      border-color: #555;
+      color: var(--text-dark);
+    }
+    #loginForm button {
+      width: 100%;
+      padding: 10px 0;
+      border: none;
+      background-color: var(--accent);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    #loginForm button:hover {
+      background-color: var(--accent-dark);
+    }
+    #loginError {
+      color: #cc0000;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-align: center;
+      display: none;
+      user-select: none;
+    }
+    #addProductModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    #addProductModal.active {
+      display: flex;
+    }
+    #addProductForm {
+      background: var(--box-light);
+      padding: 24px 30px;
+      border-radius: 12px;
+      width: 360px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      color: var(--text-light);
+      user-select: none;
+    }
+    body.dark-mode #addProductForm {
+      background: var(--box-dark);
+      color: var(--text-dark);
+    }
+    #addProductForm h2 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    #addProductForm label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    #addProductForm input[type="text"],
+    #addProductForm input[type="number"],
+    #addProductForm select {
+      width: 100%;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    #addProductForm input[type="text"]:focus,
+    #addProductForm input[type="number"]:focus,
+    #addProductForm select:focus {
+      border-color: #666;
+    }
+    body.dark-mode #addProductForm input[type="text"],
+    body-dark-mode #addProductForm input[type="number"],
+    body-dark-mode #addProductForm select {
+      background-color: #222;
+      border-color: #555;
+      color: var(--text-dark);
+    }
+    #addProductForm button {
+      width: 100%;
+      padding: 10px 0;
+      border: none;
+      background-color: var(--accent);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    #addProductForm button:hover {
+      background-color: var(--accent-dark);
+    }
+    #addProductError {
+      color: #cc0000;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-align: center;
+      display: none;
+      user-select: none;
+    }
+    #staffDropdown {
+      position: absolute;
+      top: 46px;
+      right: 0;
+      background: var(--box-light);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      min-width: 150px;
+      display: none;
+      z-index: 3000;
+      user-select: none;
+    }
+    body.dark-mode #staffDropdown {
+      background: var(--box-dark);
+      color: var(--text-dark);
+    }
+    #staffDropdown button {
+      background-color: var(--box-light);
+      color: var(--text-light);
+      border: none;
+      width: auto;
+      padding: 10px 15px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    #staffDropdown button:hover {
+      background-color: var(--hover-light);
+    }
+    body.dark-mode #staffDropdown button {
+      background-color: var(--box-dark);
+      color: var(--text-dark);
+    }
+    body.dark-mode #staffDropdown button:hover {
+      background-color: var(--hover-dark);
+    }
+    @media (max-width: 600px) {
+      body {
+        background-attachment: scroll;
+      }
+      .product img {
+        width: 100px;
+      }
+    }
+    #loginForm {
+      background: #fff !important;
+      color: #333 !important;
+    }
+    /* Edit Product Modal Styling */
+    #editProductModal.modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    #editProductModal.hidden { display: none !important; }
+    #editProductForm {
+      background: var(--box-light);
+      padding: 24px 30px;
+      border-radius: 12px;
+      width: 360px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      color: var(--text-light);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7em;
+      animation: popIn 0.38s cubic-bezier(.48,1.4,.32,1.15);
+      border: 1.5px solid #c8e6fa;
+      backdrop-filter: blur(3.5px);
+      max-height: 85vh;      /* never taller than 85% of viewport */
+      overflow-y: auto;      /* scroll if too tall */
+    }
+    body.dark-mode #editProductForm {
+      background: var(--box-dark);
+      color: var(--text-dark);
+      border: 1.5px solid #1b2635;
+    }
+    #editProductForm h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 1.58em;
+      letter-spacing: 0.03em;
+      font-weight: bold;
+      color: var(--accent);
+    }
+    body.dark-mode #editProductForm h2 {
+      color: var(--accent-dark);
+    }
+    #editProductForm label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    #editProductForm input[type="text"], 
+    #editProductForm input[type="number"], 
+    #editProductForm select {
+      width: 100%;
+      padding: 9px 13px;
+      margin-bottom: 7px;
+      border-radius: 7px;
+      border: 1.2px solid #bde1fd;
+      font-size: 1.08em;
+      outline: none;
+      background: #fafdff;
+      transition: border 0.17s, box-shadow 0.17s;
+      box-shadow: 0 1.5px 4px #eaf6ff28;
+    }
+    #editProductForm input[type="text"]:focus,
+    #editProductForm input[type="number"]:focus,
+    #editProductForm select:focus {
+      border-color: #21b4ff;
+      box-shadow: 0 2px 8px #21b4ff25;
+      background: #f4fcff;
+    }
+    body.dark-mode #editProductForm input[type="text"],
+    body-dark-mode #editProductForm input[type="number"] {
+      background-color: #222;
+      border-color: #555;
+      color: var(--text-dark);
+    }
+    body.dark-mode #editProductForm select {
+      background-color: #393939;
+      color: #eee;
+      border-color: #555;
+    }
+    body.dark-mode #editProductForm input[type="text"]:focus,
+    body-dark-mode #editProductForm input[type="number"]:focus {
+      background: #23243b;
+      border-color: #5cbcff;
+    }
+    body-dark-mode #editProductForm select:focus {
+      background: #393939;
+      border-color: #5cbcff;
+    }
+    #editProductForm button[type="submit"] {
+      width: 100%;
+      padding: 10px 0;
+      border: none;
+      background-color: var(--accent);
+      color: white;
+      font-size: 1.13em;
+      font-weight: 600;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background-color 0.25s;
+      user-select: none;
+      margin-bottom: 7px;
+      margin-top: 10px;
+      letter-spacing: 0.03em;
+    }
+    #editProductForm button[type="submit"]:hover {
+      background-color: var(--accent-dark);
+    }
+    #editProductForm button[type="button"] {
+      width: 100%;
+      padding: 9px 0;
+      border: 1.2px solid #ccc;
+      background-color: #fff;
+      color: #333;
+      font-size: 1.06em;
+      font-weight: 500;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+      margin-top: 2px;
+      letter-spacing: 0.01em;
+    }
+    #editProductForm button[type="button"]:hover {
+      background-color: #eee;
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    body.dark-mode #editProductForm button[type="button"] {
+      background-color: #232a35;
+      color: #eee;
+      border-color: #444;
+    }
+    body.dark-mode #editProductForm button[type="button"]:hover {
+      background-color: #333;
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+    #editProductError {
+      color: #cc0000;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-align: center;
+      display: none;
+      user-select: none;
+    }
+    #editOutLabel {
+      margin-bottom: 7px;
+      font-weight: 500;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    /* Add New Category Button Styling */
+    .add-category-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px auto;
+      padding: 9px 22px 9px 16px;
+      border-radius: 8px;
+      background: var(--box-light);
+      color: var(--accent);
+      font-weight: bold;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0078d710;
+      gap: 8px;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      user-select: none;
+      position: relative;
+    }
+    body.dark-mode .add-category-btn {
+      background: var(--box-dark);
+      color: var(--accent-dark);
+    }
+    .add-category-btn:hover {
+      background: var(--hover-light);
+      color: var(--accent-dark);
+      box-shadow: 0 3px 20px #3399ff17;
+    }
+    body.dark-mode .add-category-btn:hover {
+      background: var(--hover-dark);
+      color: var(--accent);
+    }
+    body.staff-logged-in .add-category-btn {
+      display: flex !important;
+    }
+    .add-category-btn .plus-icon {
+      font-size: 1.6em;
+      line-height: 1;
+      font-weight: bold;
+      margin-right: 4px;
+      margin-left: -4px;
+      pointer-events: none;
+    }
+    /* Add Category Modal Styling */
+    #addCategoryModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2500;
+    }
+    #addCategoryModal.active {
+      display: flex;
+    }
+    #addCategoryForm {
+      background: var(--box-light);
+      color: var(--text-light);
+      padding: 22px 28px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.22);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+    }
+    body.dark-mode #addCategoryForm {
+      background: var(--box-dark);
+      color: var(--text-dark);
+    }
+    #addCategoryForm h2 {
+      margin: 0 0 10px 0;
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.22em;
+      font-weight: bold;
+    }
+    body.dark-mode #addCategoryForm h2 {
+      color: var(--accent-dark);
+    }
+    #addCategoryForm label {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    #addCategoryForm input[type="text"] {
+      width: 100%;
+      padding: 8px 13px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      outline: none;
+      background: #fff;
+      transition: border 0.2s;
+    }
+    body.dark-mode #addCategoryForm input[type="text"] {
+      background-color: #222;
+      border-color: #555;
+      color: var(--text-dark);
+    }
+    #addCategoryForm input[type="text"]:focus {
+      border-color: #3399ff;
+    }
+    #addCategoryForm button {
+      width: 100%;
+      padding: 9px 0;
+      border: none;
+      background-color: var(--accent);
+      color: white;
+      font-size: 1em;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      user-select: none;
+      margin-top: 6px;
+    }
+    #addCategoryForm button:hover {
+      background-color: var(--accent-dark);
+    }
+    #addCategoryCancelBtn {
+      background: #fff;
+      color: #333;
+      border: 1.2px solid #ccc;
+      margin-top: 2px;
+      font-weight: 500;
+      transition: background 0.17s, color 0.17s, border 0.17s;
+    }
+    #addCategoryCancelBtn:hover {
+      background: #eee;
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    body.dark-mode #addCategoryCancelBtn {
+      background: #232a35;
+      color: #eee;
+      border-color: #444;
+    }
+    body.dark-mode #addCategoryCancelBtn:hover {
+      background: #333;
+      color: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+    #addCategoryError {
+      color: #cc0000;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+      user-select: none;
+      margin-bottom: 3px;
+      font-size: 0.98em;
+    }
+    #addProductForm input[type="text"],
+    #addProductForm input[type="number"],
+    #addProductForm select,
+    #editProductForm input[type="text"],
+    #editProductForm input[type="number"],
+    #editProductForm select {
+      width: 100%;
+      padding: 8px 13px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      outline: none;
+      background: #fff;
+      transition: border 0.2s;
+      box-sizing: border-box;
+      margin-bottom: 16px;
+    }
+    body.dark-mode #addProductForm input[type="text"],
+    body-dark-mode #addProductForm input[type="number"],
+    body-dark-mode #addProductForm select,
+    body-dark-mode #editProductForm input[type="text"],
+    body-dark-mode #editProductForm input[type="number"] {
+      background-color: #222;
+      border-color: #555;
+      color: var(--text-dark);
+    }
+    body.dark-mode #editProductForm select {
+      background-color: #393939;
+      color: #eee;
+      border-color: #555;
+    }
+
+    /* ---- Transparent scrollbar for edit modal ---- */
+    #editProductForm {
+      /* ...existing styles... */
+      overflow-y: auto;
+    }
+    #editProductForm::-webkit-scrollbar {
+      width: 10px;
+      background: transparent !important;
+    }
+    #editProductForm::-webkit-scrollbar-track {
+      background: transparent !important;
+    }
+    #editProductForm::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 8px;
+    }
+    body.dark-mode #editProductForm::-webkit-scrollbar-thumb {
+      background: var(--accent-dark);
+    }
+    /* For Firefox */
+    #editProductForm {
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent !important;
+    }
+    body.dark-mode #editProductForm {
+      scrollbar-color: var(--accent-dark) transparent !important;
+    }
+    #loginModal input[type="email"],
+#loginModal input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  height: 40px; /* You can adjust this value for your preference */
+}
+    #loginModal input {
+  width: 100%;
+  box-sizing: border-box;
+}
+ /* Make sure your modal uses this class or ID: #loginModal, .login-modal, etc. */
+/* Adjust these selectors to match your HTML structure if needed. */
+#loginModal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em; /* Add nice space between all children, including label/input pairs */
+  padding: 24px 22px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+#loginModal label {
+  margin-bottom: 0.3em;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+
+#loginModal input[type="email"],
+#loginModal input[type="password"] {
+  margin-bottom: 8px; /* Space below each input */
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 1em;
+  background: #fafafa;
+  transition: border-color 0.2s;
+}
+
+#loginModal input[type="email"]:focus,
+#loginModal input[type="password"]:focus {
+  border-color: var(--accent, #48aaff);
+  outline: none;
+}
+
+#loginModal .login-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+#loginModal #loginError {
+  color: #e00;
+  margin-bottom: 0.7em;
+  font-size: 0.97em;
+  display: none;
+} 
+</style>
+</head>
+<body style="background: url('https://i.imgur.com/YMgUkw9.png') no-repeat center center fixed; background-size: cover;">
+  <div class="header">
+    <div class="header-left">
+      <h1></h1>
+    </div>
+    <div class="top-icons" style="position: relative;">
+      <div class="icon-button" id="searchBtn" aria-label="Search" role="button" tabindex="0">
+        <img id="searchIcon" src="https://icons.iconarchive.com/icons/icons8/windows-8/256/Very-Basic-Search-icon.png" alt="Search" />
+        <span class="tooltip">Search</span>
+      </div>
+      <div class="icon-button" id="scanBarcodeBtn" aria-label="Scan Barcode" role="button" tabindex="0">
+        <img src="https://cdn-icons-png.freepik.com/512/11414/11414204.png" alt="Scan Barcode" style="width:28px;height:28px;" />
+        <span class="tooltip">Scan Barcode</span>
+      </div>
+      <div class="icon-button" id="themeBtn" aria-label="Theme" role="button" tabindex="0">
+        <img id="themeIcon" src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="Theme" class="fade-in" />
+        <span class="tooltip" id="themeTooltip">Night Theme</span>
+      </div>
+      <div class="icon-button" id="profileBtn" aria-label="Profile" role="button" tabindex="0">
+        <img id="profileIcon" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile" />
+        <span class="tooltip" id="profileTooltip">Staff Login</span>
+      </div>
+      <div id="staffDropdown" role="menu" aria-hidden="true" aria-label="Staff options">
+        <button id="logoutBtn" type="button">Logout</button>
+      </div>
+    </div>
+  </div>
+  <div class="search-container" id="searchContainer">
+    <input type="text" class="search-box" id="searchInput" placeholder="Search for products or categories" aria-label="Search products and categories" />
+  </div>
+  <!-- STAFF: Add New Category Button -->
+  <button id="addCategoryBtn" class="add-category-btn" type="button">
+    <span class="plus-icon">+</span>
+    New Category
+  </button>
+  <div id="categoryView" class="categories" aria-live="polite" aria-label="Product categories"></div>
+  <button id="backBtn" class="hidden" onclick="backToCategories()">← Back to Categories</button>
+  <div id="productView" class="product-list hidden" aria-live="polite" aria-label="Product list"></div>
+  <!-- Staff Login/Register Modal -->
+<div id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" style="display:none;">
+  <form id="loginForm" autocomplete="off">
+    <h2 id="loginTitle">Staff Login</h2>
+    <div id="loginError"></div>
+    <label for="staffEmail">Email</label>
+    <input type="email" id="staffEmail" name="staffEmail" required autocomplete="username" />
+    <label for="staffPassword">Password</label>
+    <input type="password" id="staffPassword" name="staffPassword" required autocomplete="current-password" />
+    <button type="submit" id="loginSubmitBtn">Login</button>
+    <button type="button" id="loginCancelBtn" style="margin-top:10px;">Cancel</button>
+  </form>
+</div>
+  <!-- Add Product Modal -->
+  <div id="addProductModal" role="dialog" aria-modal="true" aria-labelledby="addProductTitle">
+    <form id="addProductForm" onsubmit="return addProduct(event)">
+      <h2 id="addProductTitle">Add Product</h2>
+      <div id="addProductError"></div>
+      <label for="addProductName">Name</label>
+      <input type="text" id="addProductName" name="addProductName" required autocomplete="off" />
+      <label for="addProductBarcode">Barcode</label>
+      <input type="text" id="addProductBarcode" name="addProductBarcode" autocomplete="off" />
+      <label for="addProductCategory">Category</label>
+      <select id="addProductCategory" name="addProductCategory" required></select>
+      <label for="addProductPrice">Price</label>
+      <input type="text" id="addProductPrice" name="addProductPrice" placeholder="$0.00" required autocomplete="off" />
+      <label for="addProductImage">Image URL</label>
+      <input type="text" id="addProductImage" name="addProductImage" placeholder="https://example.com/image.png" required autocomplete="off" />
+      <label for="addProductSize">Size</label>
+      <input type="text" id="addProductSize" placeholder="e.g. 500ml, 8oz" />
+      <label for="addProductType">Type</label>
+      <input type="text" id="addProductType" placeholder="e.g. King, Share Size" />
+      <label id="addOutLabel" style="display:none;">
+        <input type="checkbox" id="addProductOutOfStock" /> Mark as Out of Stock
+      </label>
+      <button type="submit">Add Product</button>
+    </form>
+  </div>
+  <!-- Add Category Modal -->
+  <div id="addCategoryModal" role="dialog" aria-modal="true" aria-labelledby="addCategoryTitle">
+    <form id="addCategoryForm" autocomplete="off">
+      <h2 id="addCategoryTitle">Add New Category</h2>
+      <div id="addCategoryError"></div>
+      <label for="addCategoryName">Category Name</label>
+      <input type="text" id="addCategoryName" name="addCategoryName" placeholder="e.g. Candy, Water, Hot Drinks" maxlength="32" required autocomplete="off" />
+      <button type="submit">Add Category</button>
+      <button type="button" id="addCategoryCancelBtn">Cancel</button>
+    </form>
+  </div>
+  <!-- Edit Product Modal -->
+  <div id="editProductModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editProductTitle">
+    <form id="editProductForm" autocomplete="off">
+      <h2 id="editProductTitle">Edit Product</h2>
+      <div id="editProductError"></div>
+      <label for="editProductName">Name</label>
+      <input type="text" id="editProductName" name="editProductName" required />
+      <label for="editProductBarcode">Barcode</label>
+      <input type="text" id="editProductBarcode" name="editProductBarcode" autocomplete="off" />
+      <label for="editProductCategory">Category</label>
+      <select id="editProductCategory" name="editProductCategory" required></select>
+      <label for="editProductPrice">Price</label>
+      <input type="text" id="editProductPrice" name="editProductPrice" required />
+      <label for="editProductImage">Image URL</label>
+      <input type="text" id="editProductImage" name="editProductImage" required />
+      <label for="editProductSize">Size</label>
+      <input type="text" id="editProductSize" name="editProductSize" />
+      <label for="editProductType">Type</label>
+      <input type="text" id="editProductType" name="editProductType" />
+      <label id="editOutLabel">
+        <input type="checkbox" id="editProductOutOfStock" /> Mark as Out of Stock
+      </label>
+      <button type="submit">Save Changes</button>
+      <button type="button" id="deleteProductBtn" style="background:#e74c3c;color:#fff;font-weight:bold;padding:10px 0;border:none;border-radius:7px;width:100%;margin-top:6px;cursor:pointer;">Delete Product</button>
+      <button type="button" onclick="closeEditProductModal()">Cancel</button>
+    </form>
+  </div>
+
+<!-- Barcode Scanner Modal -->
+<div id="barcodeScannerModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:3000;">
+  <div style="background:#fff; border-radius:8px; padding:20px; max-width:95vw;">
+    <div id="barcodeScanner" style="width:300px; height:300px;"></div>
+    <div style="margin:18px 0 0 0; display:flex; flex-direction:row; align-items:center; gap:8px;">
+      <input id="manualBarcodeInput" type="text" placeholder="Enter barcode manually" style="flex:1; padding:7px 12px; border-radius:6px; border:1px solid #ccc; font-size:16px;" />
+      <button id="manualBarcodeBtn" style="padding:7px 18px; border-radius:6px; background:#7591BE; color:#fff; border:none; font-weight:bold; cursor:pointer;">Submit</button>
+    </div>
+    <button id="closeScannerBtn" style="margin-top:10px;">Cancel</button>
+  </div>
+</div>
+<script>
+  // --- PRODUCTS DATA ---
+  
+
+  // --- MAIN APP LOGIC ---
+  function updateBodyBackground(isDark) {
+    if (isDark) {
+      document.body.style.background = "url('https://i.imgur.com/tWs7mvm.png') no-repeat center center fixed";
+      document.body.style.backgroundSize = "cover";
+    } else {
+      document.body.style.background = "url('https://i.imgur.com/YMgUkw9.png') no-repeat center center fixed";
+      document.body.style.backgroundSize = "cover";
+    }
+  }
+  function initTheme() {
+    const isDark = localStorage.getItem("darkMode") === "true";
+    if (isDark) document.body.classList.add("dark-mode");
+    updateThemeIcon(isDark);
+    updateBodyBackground(isDark);
+  }
+  function animateThemeSwitch(isDark) {
+    const btn = document.getElementById('themeBtn');
+    const rect = btn.getBoundingClientRect();
+    const x = rect.left + rect.width/2 + window.scrollX;
+    const y = rect.top + rect.height/2 + window.scrollY;
+    const ripple = document.createElement('div');
+    ripple.classList.add('theme-ripple');
+    ripple.style.left = `${x - 1}px`;
+    ripple.style.top = `${y - 1}px`;
+    document.body.appendChild(ripple);
+    document.body.classList.add('theme-morph');
+    setTimeout(() => { ripple.classList.add('theme-ripple-animate'); }, 8);
+    setTimeout(() => {
+      if (isDark) document.body.classList.add("dark-mode");
+      else document.body.classList.remove("dark-mode");
+      updateThemeIcon(isDark);
+      updateBodyBackground(isDark);
+    }, 650);
+    setTimeout(() => {
+      ripple.remove();
+      document.body.classList.remove('theme-morph');
+    }, 1700);
+  }
+  function toggleDarkMode() {
+    const isCurrentlyDark = document.body.classList.contains("dark-mode");
+    const nextDark = !isCurrentlyDark;
+    localStorage.setItem("darkMode", nextDark ? "true" : "false");
+    animateThemeSwitch(nextDark);
+  }
+  function getCategories() {
+    // Use both categories from products and customCategories (in case some removed all products of a custom cat)
+    const set = new Set(products.map(p => p.category));
+    customCategories.forEach(cat => set.add(cat));
+    return Array.from(set).sort();
+  }
+  let staffLoggedIn = false;
+  let staffDropdownOpen = false;
+  let editingProductIndex = null;
+  const categoryView = document.getElementById("categoryView");
+  const productView = document.getElementById("productView");
+  const backBtn = document.getElementById("backBtn");
+  const searchContainer = document.getElementById("searchContainer");
+  const searchInput = document.getElementById("searchInput");
+  const addProductModal = document.getElementById("addProductModal");
+  const addProductForm = document.getElementById("addProductForm");
+  const addProductError = document.getElementById("addProductError");
+  const addProductCategorySelect = document.getElementById("addProductCategory");
+  const profileBtn = document.getElementById("profileBtn");
+  const staffDropdown = document.getElementById("staffDropdown");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const themeBtn = document.getElementById("themeBtn");
+  const themeIcon = document.getElementById("themeIcon");
+  const themeTooltip = document.getElementById("themeTooltip");
+  const searchBtn = document.getElementById("searchBtn");
+  const editProductModal = document.getElementById("editProductModal");
+  const editProductForm = document.getElementById("editProductForm");
+  const editProductError = document.getElementById("editProductError");
+  const editProductCategorySelect = document.getElementById("editProductCategory");
+  // Add Category Button and Modal
+  const addCategoryBtn = document.getElementById("addCategoryBtn");
+  const addCategoryModal = document.getElementById("addCategoryModal");
+  const addCategoryForm = document.getElementById("addCategoryForm");
+  const addCategoryNameInput = document.getElementById("addCategoryName");
+  const addCategoryError = document.getElementById("addCategoryError");
+  const addCategoryCancelBtn = document.getElementById("addCategoryCancelBtn");
+
+  function updateThemeIcon(isDark) {
+    themeIcon.classList.remove("fade-in");
+    themeIcon.classList.add("fade-out");
+    setTimeout(() => {
+      themeIcon.src = isDark
+        ? "https://cdn-icons-png.flaticon.com/512/9689/9689786.png"
+        : "https://i.imgur.com/DwqBgyj.png";
+      themeTooltip.textContent = isDark ? "Day Theme" : "Night Theme";
+      themeIcon.classList.remove("fade-out");
+      themeIcon.classList.add("fade-in");
+    }, 300);
+  }
+  function renderCategories() {
+    categoryView.innerHTML = "";
+    categoryView.classList.remove("hidden");
+    productView.classList.add("hidden");
+    backBtn.classList.add("hidden");
+    const categories = getCategories();
+    categories.forEach(cat => {
+      const div = document.createElement("div");
+      div.className = "category-box";
+      div.textContent = cat;
+    if (staffLoggedIn) {
+    div.classList.add("staff-logged-in");
+    // Add product plus button (your existing code)
+    const plusSpan = document.createElement("span");
+    plusSpan.className = "add-product-plus";
+    plusSpan.title = `Add product to ${cat}`;
+    plusSpan.textContent = "+";
+    plusSpan.setAttribute("role", "button");
+    plusSpan.setAttribute("tabindex", "0");
+    plusSpan.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openAddProductModal(cat);
+    });
+    plusSpan.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            e.target.click();
+        }
+    });
+    div.appendChild(plusSpan);
+
+    // Add category delete button
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Delete";
+    delBtn.title = "Delete category and all its products";
+    delBtn.style.background = "#e74c3c";
+    delBtn.style.color = "#fff";
+    delBtn.style.fontWeight = "bold";
+    delBtn.style.marginLeft = "12px";
+    delBtn.style.padding = "4px 10px";
+    delBtn.style.border = "none";
+    delBtn.style.borderRadius = "5px";
+    delBtn.style.cursor = "pointer";
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (confirm(`Delete category "${cat}" and all its products?`)) {
+        // Remove category from Firebase
+        remove(ref(db, 'categories/' + cat));
+
+        // Remove all products in this category from Firebase
+        products
+          .filter(p => p.category === cat)
+          .forEach(p => {
+            if (p.id) remove(ref(db, 'products/' + p.id));
+          });
+
+        alertMessage(`Category "${cat}" and all its products deleted.`);
+      }
+    };
+    div.appendChild(delBtn);
+}
+      div.addEventListener("click", () => {
+        showCategory(cat);
+      });
+      div.setAttribute("tabindex", "0");
+      div.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          div.click();
+        }
+      });
+      categoryView.appendChild(div);
+    });
+  }
+  function showCategory(category) {
+    categoryView.classList.add("hidden");
+    productView.classList.remove("hidden");
+    backBtn.classList.remove("hidden");
+    searchContainer.classList.remove("active");
+    searchInput.value = "";
+    const filtered = products.filter(p => p.category === category);
+    productView.dataset.category = category;
+    renderProducts(filtered, category);
+  }
+  function renderProducts(productList, currentCategory) {
+    productView.innerHTML = "";
+    if (productList.length === 0) {
+      productView.innerHTML = `<p>No products found.</p>`;
+      return;
+    }
+    productList.sort((a, b) => a.name.localeCompare(b.name));
+    productList.forEach((p, idx) => {
+      const div = document.createElement("div");
+      div.className = "product";
+      if (staffLoggedIn) div.classList.add("staff-logged-in");
+      const productIndex = products.findIndex(prod =>
+        prod.name === p.name &&
+        prod.category === p.category &&
+        prod.price === p.price &&
+        prod.image === p.image
+      );
+      div.innerHTML = `
+        <div class="product-details">
+          <h3>${p.name}</h3>
+          <p><strong>Price:</strong> ${p.price}</p>
+          ${p.size    ? `<p><strong>Size:</strong> ${p.size}</p>` : ""}
+          ${p.type    ? `<p><strong>Type:</strong> ${p.type}</p>` : ""}
+          ${p.outOfStock ? `<p style="color:red;"><strong>Out of Stock</strong></p>` : ""}
+        </div>
+        <img src="${p.image}" alt="${p.name}" loading="lazy" style="max-width:100%;height:auto;display:block;" />
+      `;
+      if (staffLoggedIn) {
+  const editBtn = document.createElement("button");
+  editBtn.className = "edit-product-btn";
+  editBtn.title = "Edit product info";
+  editBtn.setAttribute("aria-label", "Edit product");
+  editBtn.innerHTML = `
+    <img src="https://icons.veryicon.com/png/o/miscellaneous/two-color-webpage-small-icon/edit-247.png"
+         alt="Edit" style="width:20px;height:20px;display:block;" />
+  `;
+  editBtn.onclick = (e) => {
+    e.stopPropagation();
+    openEditProductModal(productIndex);
+  };
+  div.appendChild(editBtn);
+}
+      productView.appendChild(div);
+    });
+  }
+  function backToCategories() {
+    productView.classList.add("hidden");
+    backBtn.classList.add("hidden");
+    categoryView.classList.remove("hidden");
+    searchInput.value = "";
+    searchContainer.classList.remove("active");
+  }
+  function performSearch() {
+    const query = searchInput.value.trim().toLowerCase();
+    if (!query) {
+      renderCategories();
+      backToCategories();
+      return;
+    }
+    const filteredProducts = products.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      p.category.toLowerCase().includes(query)
+    );
+    const filteredCategories = getCategories().filter(c =>
+      c.toLowerCase().includes(query)
+    );
+    if (filteredProducts.length === 0 && filteredCategories.length > 0) {
+      categoryView.innerHTML = "";
+      filteredCategories.forEach(cat => {
+        const div = document.createElement("div");
+        div.className = "category-box";
+        div.textContent = cat;
+        div.setAttribute("tabindex", "0");
+        div.addEventListener("click", () => {
+          showCategory(cat);
+        });
+        div.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            div.click();
+          }
+        });
+        categoryView.appendChild(div);
+      });
+      backToCategories();
+      return;
+    }
+    categoryView.classList.add("hidden");
+    backBtn.classList.remove("hidden");
+    productView.classList.remove("hidden");
+    renderProducts(filteredProducts);
+  }
+  function toggleSearch() {
+    if (searchContainer.classList.contains("active")) {
+      searchContainer.classList.remove("active");
+      searchInput.value = "";
+      backToCategories();
+    } else {
+      searchContainer.classList.add("active");
+      searchInput.focus();
+    }
+  }
+ 
+  function openLoginModal() {
+    loginModal.classList.add("active");
+    loginError.style.display = "none";
+    staffCodeInput.value = "";
+    staffCodeInput.focus();
+  }
+  function closeLoginModal() {
+    loginModal.classList.remove("active");
+  }
+  function logoutStaff() {
+    staffLoggedIn = false;
+    closeStaffDropdown();
+    renderCategories();
+    alertMessage("Logged out successfully.");
+    document.getElementById("profileTooltip").textContent = "Staff Login";
+    profileBtn.title = "Staff Login";
+    backToCategories();
+    updateStaffUI();
+    addCategoryBtn.style.display = "none";
+  }
+  function updateStaffUI() {
+    if (staffLoggedIn) {
+      staffDropdown.style.display = "none";
+      logoutBtn.style.display = "block";
+      document.body.classList.add("staff-logged-in");
+      addCategoryBtn.style.display = "flex";
+    } else {
+      staffDropdown.style.display = "none";
+      logoutBtn.style.display = "none";
+      document.body.classList.remove("staff-logged-in");
+      addCategoryBtn.style.display = "none";
+    }
+  }
+  function toggleStaffDropdown() {
+    if (!staffLoggedIn) {
+      openLoginModal();
+      return;
+    }
+  if (staffDropdown.style.display === "block") {
+  closeStaffDropdown();
+} else {
+  staffDropdown.style.display = "block";
+  staffDropdown.setAttribute("aria-hidden", "false");
+}
+  }
+  function closeStaffDropdown() {
+    staffDropdown.style.display = "none";
+    staffDropdown.setAttribute("aria-hidden", "true");
+  }
+  function openAddProductModal(category, barcode) {
+  if (!staffLoggedIn) {
+    alertMessage("Please log in as staff to add products.");
+    return;
+  }
+  addProductModal.classList.add("active");
+  addProductError.style.display = "none";
+  addProductForm.reset();
+  document.getElementById("addProductSize").value = "";
+  document.getElementById("addProductType").value = "";
+  document.getElementById("addProductOutOfStock").checked = false;
+  document.getElementById("addOutLabel").style.display = staffLoggedIn ? "block" : "none";
+  const categories = getCategories();
+  addProductCategorySelect.innerHTML = "";
+  categories.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    addProductCategorySelect.appendChild(option);
+  });
+  // If no category, select the first category as default
+  addProductCategorySelect.value = category || categories[0] || "";
+  // Set barcode if provided
+  if (barcode) document.getElementById("addProductBarcode").value = barcode;
+  document.getElementById("addProductName").focus();
+}
+  function closeAddProductModal() {
+    addProductModal.classList.remove("active");
+  }
+function addProduct(event) {
+  event.preventDefault();
+  const name = document.getElementById("addProductName").value.trim();
+  const barcode = document.getElementById("addProductBarcode").value.trim();
+  const category = addProductCategorySelect.value;
+  const price = document.getElementById("addProductPrice").value.trim();
+  const image = document.getElementById("addProductImage").value.trim();
+  const size = document.getElementById("addProductSize").value.trim();
+  const type = document.getElementById("addProductType").value.trim();
+  const outOfStock = document.getElementById("addProductOutOfStock").checked;
+
+  if (!name || !category || !price || !image) {
+    addProductError.textContent = "Please fill all fields correctly.";
+    addProductError.style.display = "block";
+    return false;
+  }
+
+  // 🔥 Save to Firebase instead of local array!
+  push(ref(db, 'products'), {
+    name,
+    barcode,
+    category,
+    price,
+    image,
+    size,
+    type,
+    outOfStock
+  });
+
+  addProductError.style.display = "none";
+  closeAddProductModal();
+  // No need to call renderCategories() or saveInventory(), Firebase listener does that!
+  alertMessage(`Product "${name}" added successfully.`);
+  return false;
+}
+  function openEditProductModal(productIdx) {
+    if (!staffLoggedIn) {
+      alertMessage("Please log in as staff to edit products.");
+      return;
+    }
+    editingProductIndex = productIdx;
+    const p = products[productIdx];
+    if (!p) return;
+    editProductCategorySelect.innerHTML = "";
+    getCategories().forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      editProductCategorySelect.appendChild(opt);
+    });
+    document.getElementById("editProductName").value = p.name || "";
+    editProductCategorySelect.value = p.category || "";
+    document.getElementById("editProductPrice").value = p.price || "";
+    document.getElementById("editProductImage").value = p.image || "";
+    document.getElementById("editProductSize").value = p.size || "";
+    document.getElementById("editProductType").value = p.type || "";
+    document.getElementById("editProductOutOfStock").checked = !!p.outOfStock;
+    document.getElementById("editOutLabel").style.display = "block";
+    editProductError.style.display = "none";
+    editProductModal.classList.remove("hidden");
+    setTimeout(() => {
+      document.getElementById("editProductName").focus();
+    }, 10);
+  }
+  function closeEditProductModal() {
+    editProductModal.classList.add("hidden");
+    editingProductIndex = null;
+  }
+ editProductForm.onsubmit = function(event) {
+  event.preventDefault();
+  if (editingProductIndex === null || !products[editingProductIndex]) return false;
+  const name = document.getElementById("editProductName").value.trim();
+  const category = editProductCategorySelect.value;
+  const price = document.getElementById("editProductPrice").value.trim();
+  const image = document.getElementById("editProductImage").value.trim();
+  const size = document.getElementById("editProductSize").value.trim();
+  const type = document.getElementById("editProductType").value.trim();
+  const outOfStock = document.getElementById("editProductOutOfStock").checked;
+
+  if (!name || !category || !price || !image) {
+    editProductError.textContent = "Please fill all fields.";
+    editProductError.style.display = "block";
+    return false;
+  }
+
+  const product = products[editingProductIndex];
+  if (!product || !product.id) {
+    editProductError.textContent = "Product not found.";
+    editProductError.style.display = "block";
+    return false;
+  }
+
+  // Update the product in Firebase
+  update(ref(db, 'products/' + product.id), {
+    name,
+    category,
+    price,
+    image,
+    size,
+    type,
+    outOfStock
+  });
+
+  editProductError.style.display = "none";
+  closeEditProductModal();
+  alertMessage(`Product "${name}" updated successfully.`);
+  return false;
+};
+  // ---- NEW CATEGORY LOGIC ----
+  addCategoryBtn.addEventListener("click", function() {
+    openAddCategoryModal();
+  });
+  function openAddCategoryModal() {
+    if (!staffLoggedIn) {
+      alertMessage("Staff login required.");
+      return;
+    }
+    addCategoryError.style.display = "none";
+    addCategoryForm.reset();
+    addCategoryModal.classList.add("active");
+    setTimeout(() => addCategoryNameInput.focus(), 80);
+  }
+  function closeAddCategoryModal() {
+    addCategoryModal.classList.remove("active");
+    addCategoryNameInput.value = "";
+    addCategoryError.style.display = "none";
+  }
+  addCategoryCancelBtn.addEventListener("click", function() {
+    closeAddCategoryModal();
+  });
+  addCategoryModal.addEventListener("click", (e) => {
+    if (e.target === addCategoryModal) closeAddCategoryModal();
+  });
+
+  addCategoryForm.onsubmit = function(event) {
+  event.preventDefault();
+  const name = addCategoryNameInput.value.trim();
+  if (!name) {
+    addCategoryError.textContent = "Category name required.";
+    addCategoryError.style.display = "block";
+    return false;
+  }
+  if (name.length > 32) {
+    addCategoryError.textContent = "Category name too long.";
+    addCategoryError.style.display = "block";
+    return false;
+  }
+  const categoriesLower = customCategories.map(c => c.toLowerCase());
+  if (categoriesLower.includes(name.toLowerCase())) {
+    addCategoryError.textContent = "Category already exists.";
+    addCategoryError.style.display = "block";
+    return false;
+  }
+  set(ref(db, 'categories/' + name), true);
+  closeAddCategoryModal();
+  alertMessage(`Category "${name}" added.`);
+  return false;
+};
+  // ---- END NEW CATEGORY LOGIC ----
+
+  function alertMessage(msg) {
+    let alertDiv = document.getElementById("alertMessage");
+    if (!alertDiv) {
+      alertDiv = document.createElement("div");
+      alertDiv.id = "alertMessage";
+      alertDiv.style.position = "fixed";
+      alertDiv.style.top = "10px";
+      alertDiv.style.left = "50%";
+      alertDiv.style.transform = "translateX(-50%)";
+      alertDiv.style.backgroundColor = "var(--accent)";
+      alertDiv.style.color = "#fff";
+      alertDiv.style.padding = "10px 20px";
+      alertDiv.style.borderRadius = "8px";
+      alertDiv.style.zIndex = "9999";
+      alertDiv.style.fontWeight = "600";
+      alertDiv.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
+      alertDiv.style.userSelect = "none";
+      alertDiv.style.opacity = "0";
+      alertDiv.style.transition = "opacity 0.4s ease";
+      document.body.appendChild(alertDiv);
+    }
+    alertDiv.textContent = msg;
+    alertDiv.style.opacity = "1";
+    setTimeout(() => {
+      alertDiv.style.opacity = "0";
+    }, 3000);
+  }
+  themeBtn.addEventListener("click", toggleDarkMode);
+  searchBtn.addEventListener("click", toggleSearch);
+  searchInput.addEventListener("input", performSearch);
+  logoutBtn.addEventListener("click", () => {
+    logoutStaff();
+  });
+  loginModal.addEventListener("click", (e) => {
+    if (e.target === loginModal) {
+      closeLoginModal();
+    }
+  });
+  addProductModal.addEventListener("click", (e) => {
+    if (e.target === addProductModal) {
+      closeAddProductModal();
+    }
+  });
+  editProductModal.addEventListener("click", (e) => {
+    if (e.target === editProductModal) {
+      closeEditProductModal();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (loginModal.classList.contains("active")) closeLoginModal();
+      if (addProductModal.classList.contains("active")) closeAddProductModal();
+      if (addCategoryModal.classList.contains("active")) closeAddCategoryModal();
+      if (!editProductModal.classList.contains("hidden")) closeEditProductModal();
+      if (staffDropdown.style.display === "block") closeStaffDropdown();
+    }
+  });
+
+  // --- INITIALIZE ---
+  initTheme();
+  renderCategories();
+  updateStaffUI();
+  // --- BARCODE SCANNER LOGIC ---
+
+// Get the button and modal elements
+const scanBarcodeBtn = document.getElementById("scanBarcodeBtn");
+const barcodeScannerModal = document.getElementById("barcodeScannerModal");
+const barcodeScannerDiv = document.getElementById("barcodeScanner");
+const closeScannerBtn = document.getElementById("closeScannerBtn");
+
+let html5QrCode = null;
+
+// Open the scanner modal and start camera
+scanBarcodeBtn.addEventListener("click", () => {
+  barcodeScannerModal.style.display = "flex";
+  startBarcodeScanner();
+});
+
+// Close the modal and stop camera
+closeScannerBtn.addEventListener("click", () => {
+  stopBarcodeScanner();
+  barcodeScannerModal.style.display = "none";
+});
+// Manual barcode input logic
+document.getElementById("manualBarcodeBtn").onclick = function() {
+  const barcode = document.getElementById("manualBarcodeInput").value.trim();
+  if (barcode) {
+    stopBarcodeScanner();
+    document.getElementById("barcodeScannerModal").style.display = "none";
+    handleBarcodeScanned(barcode);
+  } else {
+    alertMessage("Please enter a barcode!");
+  }
+};
+document.getElementById("manualBarcodeInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    document.getElementById("manualBarcodeBtn").click();
+  }
+});
+// Start the barcode scanner
+function startBarcodeScanner() {
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => html5QrCode.clear());
+  }
+  html5QrCode = new Html5Qrcode("barcodeScanner");
+  const config = {
+    fps: 10,
+    qrbox: { width: 250, height: 250 },
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      // You can add more formats if needed
+    ]
+  };
+  html5QrCode.start(
+    { facingMode: "environment" },
+    config,
+    (decodedText, decodedResult) => {
+      stopBarcodeScanner();
+      barcodeScannerModal.style.display = "none";
+      handleBarcodeScanned(decodedText);
+    },
+    (errorMessage) => {
+      // You can log errors here if you want to debug
+    }
+  ).catch(err => {
+    alertMessage("Camera error: " + err);
+    barcodeScannerModal.style.display = "none";
+  });
+}
+// Stop the barcode scanner
+function stopBarcodeScanner() {
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      html5QrCode = null; // <-- This line resets it!
+    }).catch(() => {
+      html5QrCode = null; // <-- And here, in case of error
+    });
+  }
+}
+
+// What happens when a code is scanned
+function handleBarcodeScanned(barcode) {
+  barcode = barcode.trim();
+  if (!barcode) return;
+
+  // Try to find product by barcode
+  const found = products.find(p => p.barcode && p.barcode === barcode);
+
+if (found) {
+  // Show product details (you can customize this part!)
+ 
+  renderProducts([found]);
+  categoryView.classList.add("hidden");
+  productView.classList.remove("hidden");
+  backBtn.classList.remove("hidden");
+} else if (staffLoggedIn) {
+  // If staff: open add product modal with barcode pre-filled
+  openAddProductModal(undefined, barcode);
+  alertMessage("Add a new product for this barcode below."); // <-- improved message
+} else {
+  // Visitor/user: not found
+  alertMessage("Product not found.");
+
+}
+}
+document.getElementById("deleteProductBtn").onclick = function() {
+  if (editingProductIndex !== null && products[editingProductIndex] && confirm("Are you sure you want to delete this product?")) {
+    const product = products[editingProductIndex];
+    if (product && product.id) {
+      remove(ref(db, 'products/' + product.id));
+      closeEditProductModal();
+      alertMessage("Product deleted.");
+    } else {
+      alertMessage("Product not found.");
+    }
+  }
+};
+</script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getDatabase, ref, push, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+// Replace your old staff login logic for the profile button (use Firebase Auth now)
+profileBtn.onclick = function() {
+  if (!auth.currentUser) {
+    openLoginModal();  // This will open the new email/password modal
+  } else {
+    toggleStaffDropdown(); // Show staff options (like logout)
+  }
+};
+
+// Replace your old logout logic
+logoutBtn.onclick = function() {
+  signOut(auth);
+};
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBIbbSjUE21KdkMo0YgUqOqprO6QCsLOx0",
+  authDomain: "rainbow-35908.firebaseapp.com",
+  databaseURL: "https://rainbow-35908-default-rtdb.firebaseio.com/",
+  projectId: "rainbow-35908",
+  storageBucket: "rainbow-35908.firebasestorage.app",
+  messagingSenderId: "260725489775",
+  appId: "1:260725489775:web:31c8633ed6bc8f1fb78d9a",
+  measurementId: "G-F2SMR0PF2J"
+};
+// Firebase config and initialization
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+// Import at the very top of your module script (if not already):
+import { onValue, ref } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+// Real-time listener for categories
+let customCategories = [];
+onValue(ref(db, 'categories'), (snapshot) => {
+  const data = snapshot.val() || {};
+  customCategories = Object.keys(data);
+  renderCategories();
+});
+
+// Real-time listener for products
+let products = []; // This will hold the current product list
+onValue(ref(db, 'products'), (snapshot) => {
+  const data = snapshot.val() || {};
+  // Convert {id1: {...}, id2: {...}} into [{...id: id1}, {...id: id2}]
+  products = Object.entries(data).map(([id, p]) => ({ ...p, id }));
+  renderCategories(); // This will refresh your UI!
+});
+// --- AUTH LOGIC START ---
+
+// Get modal/form elements
+const loginModal = document.getElementById("loginModal");
+const loginForm = document.getElementById("loginForm");
+const loginError = document.getElementById("loginError");
+const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+const loginCancelBtn = document.getElementById("loginCancelBtn");
+const staffEmail = document.getElementById("staffEmail");
+const staffPassword = document.getElementById("staffPassword");
+
+// Show login modal function
+window.openLoginModal = function() {
+  loginModal.style.display = "flex";
+  loginError.textContent = "";
+  loginForm.reset();
+  staffEmail.focus();
+};
+
+// Hide login modal function
+function closeLoginModal() {
+  loginModal.style.display = "none";
+}
+
+// Handle login form submit
+loginForm.onsubmit = async function(event) {
+  event.preventDefault();
+  try {
+    await signInWithEmailAndPassword(auth, staffEmail.value, staffPassword.value);
+    closeLoginModal();
+    loginError.style.display = "none"; // Hide error on success
+  } catch (err) {
+    loginError.textContent = "Wrong email or password. Please try again.";
+    loginError.style.display = "block"; // Show error
+  }
+};
+
+// Hide error when user starts typing
+staffEmail.oninput = staffPassword.oninput = () => {
+  loginError.style.display = "none";
+};
+
+// Handle register button
+
+
+// Handle cancel button
+loginCancelBtn.onclick = closeLoginModal;
+
+// Listen for authentication state changes
+onAuthStateChanged(auth, user => {
+  if (user) {
+    staffLoggedIn = true;
+    updateStaffUI();
+    renderCategories();
+  } else {
+    staffLoggedIn = false;
+    updateStaffUI();
+    renderCategories();
+  }
+});
+
+// --- AUTH LOGIC END ---
+
+function updateProductListUI(products) {
+  let html = '<ul>';
+  for (const key in products) {
+    html += `<li>${products[key].name}</li>`;
+  }
+  html += "</ul>";
+  document.getElementById("firebase-product-list").innerHTML = html;
+}
+
+// Real-time listener: ONLY update UI here!
+onValue(ref(db, 'products'), (snapshot) => {
+  const products = snapshot.val() || {};
+  updateProductListUI(products);
+});
+</script>
+<div id="firebase-product-list"></div>
+</body>
+</html>
